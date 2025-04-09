@@ -2,6 +2,7 @@
 #include<string>
 #include<vector>
 #include "blockchain.cpp"
+#include "route_optimization.cpp"
 
 using namespace std;    
 
@@ -43,35 +44,23 @@ public:
             return;
         }
 
-        int numPharmacies;
-        cout << "\nEnter number of pharmacies to deliver to: ";
-        cin >> numPharmacies;
-
-        vector<string> pharmacyList(numPharmacies);
-        cout << "Enter names of the pharmacies:\n";
-        for (int i = 0; i < numPharmacies; ++i) {
-            cout << "Pharmacy " << i + 1 << ": ";
-            cin >> pharmacyList[i];
-        }
-
         cout << "\nChoose delivery type:\n";
         cout << "1. Single Truck (Prim's Algorithm)\n";
         cout << "2. Multiple Trucks (Dijkstra's Algorithm)\n";
         int choice;
         cin >> choice;
 
+        // From manufacturer code
         if (choice == 1) {
-           // deliveryGraph.runPrims();
+            runPrims(); // +1 to include Mumbai
         } else if (choice == 2) {
-           // deliveryGraph.runDijkstra();
-        } else {
-            cout << "Invalid choice.\n";
-            return;
+            runDijkstra();
         }
 
-        batch->deliveryPath = pharmacyList;
-        for (const auto& pharmacy : pharmacyList)
-            batch->delivered[pharmacy] = false;
+
+        //batch->deliveryPath = pharmacyList;
+        //for (const auto& pharmacy : pharmacyList)
+         //   batch->delivered[pharmacy] = false;
 
         batch->status = "In Transit";
         cout << "\nDelivery route set successfully!\n";
