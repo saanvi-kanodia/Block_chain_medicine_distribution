@@ -5,7 +5,7 @@
 using namespace std;
 
 // Include all class files
-#include "Blockchain.cpp"
+#include "Blockchain.h"
 #include "Manufacturer.cpp"
 #include "Pharmacist.cpp"
 #include "Customer.cpp"
@@ -40,24 +40,24 @@ int main() {
 
         switch (choice) {
             case 1:
-                //manufacturer.login();
+                manufacturer.login();
                 manufacturer.createBatch();
                 manufacturer.setRoute();
-                //manufacturer.logout();
+                manufacturer.logout();
                 break;
 
             case 2: {
                 Pharmacist pharmacist;
-                //pharmacist.login();
+                pharmacist.login();
                 pharmacist.incomingBatch(blockchain);
-                //pharmacist.logout();
+                pharmacist.logout();
                 break;
             }
 
             case 3:
-                //customer.login();
+                customer.login();
                 customer.verifyAuthenticity(blockchain);
-                //customer.logout();
+                customer.logout();
                 break;
 
             case 4:

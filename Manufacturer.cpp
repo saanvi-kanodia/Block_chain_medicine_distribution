@@ -1,9 +1,8 @@
 #include<iostream>
 #include<string>
 #include<vector>
-#include "blockchain.cpp"
-#include "route_optimization.cpp"
-
+#include "blockchain.h"
+#include "route_optimization.h"
 using namespace std;    
 
 class Manufacturer {
@@ -17,11 +16,16 @@ public:
         chain = bc;
     }
 
+    void login() {
+        cout << "\nManufacturer Loged in\n";
+        cout << "Welcome, " << manufacturerID << "!\n";
+    }
+
     void createBatch() {
         
         cout << "\nManufacturer ID: " << manufacturerID << endl;
         cout << "-----------------------------------------------------\n";
-        cout << "Enter the details of the batch\n";
+        cout << "Creating a new medicine batch. Enter the details\n";
         
         string batchID, productName, manufactureDate, expiryDate;
         cout << "Enter the batch ID: "; cin >> batchID;
@@ -30,7 +34,7 @@ public:
         cout << "Enter the expiry date: "; cin >> expiryDate;
 
         chain->createBatch(batchID, productName, manufactureDate, expiryDate, manufacturerID);
-        cout << "\n✅ Batch created successfully!\n";
+        cout << "\n Batch created successfully!\n";
     }
 
     void setRoute() {
@@ -40,10 +44,11 @@ public:
 
         Block* batch = chain->findBatch(batchID);
         if (batch == nullptr) {
-            cout << "❌ Batch not found.\n";
+            cout << "Batch not found.\n";
             return;
         }
 
+        cout << "Batch found!\n";
         cout << "\nChoose delivery type:\n";
         cout << "1. Single Truck (Prim's Algorithm)\n";
         cout << "2. Multiple Trucks (Dijkstra's Algorithm)\n";
@@ -64,7 +69,19 @@ public:
 
         batch->status = "In Transit";
         cout << "\nDelivery route set successfully!\n";
-        cout<<"Batch is in transit";
+        cout<<"Batch is in transit\n";
+
+        cout << " Delivery Path: ";
+        for (int i=0; i<pharmacyList.size(); i++) {
+            cout << pharmacyList[i]<<" >>  ";
+        }
+        cout << endl;
 }
 
+
+
+    void logout() {
+        cout<<"---------------------------------------";
+        cout << "\nLogging out " << manufacturerID << ". Thank you!\n";
+    }
 };

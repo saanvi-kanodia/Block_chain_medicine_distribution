@@ -4,11 +4,15 @@
         {
             "label": "Build C++",
             "type": "shell",
-            "command": "C:/msys64/ucrt64/bin/g++.exe",
+            "command": "g++",
             "args": [
-                "blockchain.cpp",
+                "main.cpp",
+                "Manufacturer.cpp",
+                "Pharmacist.cpp",
+                "Blockchain.cpp",
+                "route_optimization.cpp",
                 "-o",
-                "blockchain.exe",
+                "main",
                 "-std=c++11"
             ],
             "group": {

@@ -1,103 +1,59 @@
-#include<iostream>
-#include<string>
-#include<random> // for random number generation
-#include<vector>
-#include<map> // for map data structure
+#include "blockchain.h"
+#include "sha256.h"
 using namespace std;
 
-class Block{
-public:
-    string batchID;
-    string productName;
-    string manufactureDate;
-    string expiryDate;
-    string manufacturerID;
-    unsigned long long hash;
-    string status;         // NEW: status field
+Blockchain::Blockchain() {
+    head = nullptr;
+}
 
-    vector<string> deliveryPath;             // 🚚 The route decided by manufacturer
-    map<string, bool> delivered;         // 📦 Delivery status for each pharmacy
-    
-    Block* next;
+string Blockchain::generateHash(const string &input) {
+    return sha256(input);
+}
 
-    Block() {
-        next = nullptr;
-    }
-};
+Block *Blockchain::getHead() {
+    return head;
+}
 
-class Blockchain{
-private:
-    Block*head;
+void Blockchain::addBlock(Block *block) {
+    block->next = head;
+    head = block;
+}
 
-    unsigned long long generateHash(string input){
-        random_device rd;            // Get a random seed from hardware
-        mt19937 gen(rd());           // Use Mersenne Twister random number generator, seeded with rd
-        uniform_int_distribution<> distr(1000000000000000, 2550000000000000); // Define range from 0 to 255
-        unsigned long long hash = distr(gen);
-        for (char c : input) {
-            hash ^= (unsigned char)c;
-            hash ^= (hash >> 13);
-            hash ^= (hash << 7);
-        }
-        return hash;
-    }
+Block *Blockchain::createBatch(string batchID, string productName, string mDate, string eDate, string manufacturerID) {
+    string input = batchID + productName + mDate + eDate;
+    string hash = generateHash(input);
+    Block *newBlock = new Block();
+    newBlock->batchID = batchID;
+    newBlock->productName = productName;
+    newBlock->manufactureDate = mDate;
+    newBlock->expiryDate = eDate;
+    newBlock->hash = hash;
+    newBlock->deliveryPath = {};
+    newBlock->delivered.clear();
+    newBlock->next = head;
+    newBlock->status = "Created";
+    head = newBlock;
+    return newBlock;
+}
 
-public:
-    Blockchain(){
-        head = nullptr;
-    }
-
-    Block* getHead() {
-        return head;
-    }    
-
-    void addBlock(Block* block) {
-        block->next = head;
-        head = block;
-    }
-
-    Block* createBatch(string batchID, string productName, string mDate, string eDate, string manufacturerID) {
-        string input = batchID + productName + mDate + eDate ;
-        unsigned long long hash = generateHash(input);
-    
-        Block* newBlock = new Block();
-        newBlock->batchID = batchID;
-        newBlock->productName = productName;
-        newBlock->manufactureDate = mDate;
-        newBlock->expiryDate = eDate;
-        newBlock->hash = hash;
-        newBlock->deliveryPath = {};             // Empty initially
-        newBlock->delivered.clear();             // No confirmations yet
-        newBlock->next = head;
-        head = newBlock;
-        newBlock->status = "Created";
-
-        return newBlock; // Return pointer to newly created block
-    }
-
-    Block* findBatch(string batchID) {
-        Block* temp = head;
-        while (temp != nullptr) {
-            if (temp->batchID == batchID) {
-                return temp;  // Batch found
-            }
-            temp = temp->next;
-        }
-        return nullptr;  // Batch not found
-    }
-
-    bool verifyBatch(string batchID, string productName, string mDate, string eDate) {
-        string input = batchID + productName + mDate + eDate;
-    unsigned long long computedHash = generateHash(input);
-
-    Block* temp = head;
+Block *Blockchain::findBatch(string batchID) {
+    Block *temp = head;
     while (temp != nullptr) {
-        if (temp->batchID == batchID && temp->hash == computedHash) {
-            return true; // Valid batch found
-        }
+        if (temp->batchID == batchID) return temp;
         temp = temp->next;
     }
-    return false; // No matching batch found
-    }
-};
+    return nullptr;
+}
 
+bool Blockchain::verifyBatch(string batchID, string productName, string mDate, string eDate) {
+    string input = batchID + productName + mDate + eDate;
+    string computedHash = generateHash(input);
+
+    Block *temp = head;
+    while (temp != nullptr) {
+        if (temp->batchID == batchID && temp->hash == computedHash)
+            return true;
+        temp = temp->next;
+    }
+    return false;
+}

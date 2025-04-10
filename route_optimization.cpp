@@ -1,5 +1,3 @@
-//#include <cstring> 
-//#include <cctype> 
 #include <iostream>
 #include <limits>
 #include <cmath> 
@@ -14,9 +12,9 @@ const int MAX_CITIES = 50;
 const double INF = numeric_limits<double>::infinity();
 
 // Transport cost rates (Rs. per ton km)
-const double AIR_COST = 18.0;
+//const double AIR_COST = 18.0;
 const double RAIL_COST = 1.36;
-const double ROAD_COST = 2.75;
+//const double ROAD_COST = 2.75;
 
 struct City {
     char Cityname[30];
@@ -45,26 +43,26 @@ City pharmacies[MAX_CITIES] = {
 };
 
 double getTransportCost(double distance) {
-    return distance * min({AIR_COST, RAIL_COST, ROAD_COST});
+    return distance *  RAIL_COST;
 }
 
-void buildGraph(double graph[50][50], const int selected[], int n) {
-    for (int i = 0; i < n; ++i) {
-        int from = selected[i];
-        for (int j = 0; j < n; ++j) {
-            int to = selected[j];
-            if (i == j) graph[i][j] = 0;
+void buildGraph(double graph[50][50]) {
+    for (int i = 0; i < MAX_CITIES; ++i) {
+        for (int j = 0; j < MAX_CITIES; ++j) {
+            if (i == j)
+                graph[i][j] = 0;
             else {
-                double distance = fabs(pharmacies[from].distanceFromMumbai - pharmacies[to].distanceFromMumbai);
+                double distance = fabs(pharmacies[i].distanceFromMumbai - pharmacies[j].distanceFromMumbai);
                 graph[i][j] = getTransportCost(distance);
             }
         }
     }
 }
+
 void displayPharmacies(){
     cout << "List of Pharmacies:\n";
     for (size_t i = 0; i < MAX_CITIES; ++i) {
-        cout << i + 1 << ") " << pharmacies[i].pharmacy << ", " << pharmacies[i].Cityname << endl;
+        cout << i << ") " << pharmacies[i].pharmacy << ", " << pharmacies[i].Cityname << endl;
     }
 }
 
@@ -86,9 +84,10 @@ void getSelectedCities(int& numCities, int selected[]) {
         cin>> index;
 
         //int index = findCityByPharmacy(pharmacy);
-        if (index == -1) {
-            cout << "Pharmacy not found. Try again.\n";
-        } else {
+        if (index < 1 || index >= MAX_CITIES) {
+            cout << "Invalid index. Try again.\n";
+            continue;
+        }else {
             bool duplicate = false;
             for (int i = 0; i < count; ++i)
                 if (selected[i] == index) duplicate = true;
@@ -107,7 +106,7 @@ vector<string> runPrims() {
     double graph[50][50];
 
     getSelectedCities(numCities, selected);
-    buildGraph(graph, selected, numCities + 1);
+    buildGraph(graph);
 
     int parent[50];
     double key[50];
@@ -141,19 +140,30 @@ vector<string> runPrims() {
 
     double totalCost = 0;
     vector<string> path;
+    string deliveryRoute = pharmacies[selected[0]].pharmacy + " (" + pharmacies[selected[0]].Cityname + ")";
 
     cout << "\nPrim's MST (Route for Single Truck):\n";
     for (int i = 1; i <= numCities; ++i) {
-        cout << pharmacies[selected[parent[i]]].pharmacy << " -> " << pharmacies[selected[i]].pharmacy
-             << " | Cost: Rs. " << graph[i][parent[i]] << endl;
+        int u = parent[i];
+        int v = i;
 
-        totalCost += graph[i][parent[i]];
-        path.push_back(pharmacies[selected[parent[i]]].pharmacy);
-        path.push_back(pharmacies[selected[i]].pharmacy);
+        cout << pharmacies[selected[u]].pharmacy << " (" << pharmacies[selected[u]].Cityname << ")"
+            << " -> " << pharmacies[selected[v]].pharmacy << " (" << pharmacies[selected[v]].Cityname << ")"
+            << " | Cost: Rs. " << graph[v][u] << endl;
+
+        totalCost += graph[v][u];
+        path.push_back(pharmacies[selected[v]].pharmacy);
+        
+        deliveryRoute += " -> " + pharmacies[selected[v]].pharmacy + " (" + pharmacies[selected[v]].Cityname + ")";
     }
+    cout << "---------------------------------------";
+    cout << "\nDelivery Route:\n" << deliveryRoute << endl;
+    cout << "---------------------------------------\n";
 
-    cout << "Total transport Cost: Rs. " << totalCost << endl;
+    cout << "\nTotal Transport Cost: Rs. " << totalCost << endl;
+
     return path;
+
 }
 
 vector<string> runDijkstra() {
@@ -161,7 +171,7 @@ vector<string> runDijkstra() {
     double graph[50][50];
 
     getSelectedCities(numCities, selected);
-    buildGraph(graph, selected, numCities + 1);
+    buildGraph(graph);
 
     vector<string> path;
     double dist[50];
