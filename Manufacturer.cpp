@@ -51,16 +51,16 @@ public:
         cin >> choice;
 
         // From manufacturer code
+        vector<string> pharmacyList;
         if (choice == 1) {
-            runPrims(); // +1 to include Mumbai
+            pharmacyList = runPrims();
         } else if (choice == 2) {
-            runDijkstra();
+            pharmacyList = runDijkstra();
         }
 
-
-        //batch->deliveryPath = pharmacyList;
-        //for (const auto& pharmacy : pharmacyList)
-         //   batch->delivered[pharmacy] = false;
+        batch->deliveryPath = pharmacyList;
+        for (const auto& pharmacy : pharmacyList)
+            batch->delivered[pharmacy] = false;
 
         batch->status = "In Transit";
         cout << "\nDelivery route set successfully!\n";
